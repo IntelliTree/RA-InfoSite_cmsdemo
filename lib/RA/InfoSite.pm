@@ -3,73 +3,44 @@ use Moose;
 use namespace::autoclean;
 
 use Catalyst::Runtime 5.80;
+use RapidApp 0.99014;
 
-# Set flags and add plugins for the application.
-#
-# Note that ORDERING IS IMPORTANT here as plugins are initialized in order,
-# therefore you almost certainly want to keep ConfigLoader at the head of the
-# list if you're using it.
-#
-#         -Debug: activates the debug mode for very useful log messages
-#   ConfigLoader: will load the configuration from a Config::General file in the
-#                 application's home directory
-# Static::Simple: will serve static files from the application's root
-#                 directory
+use Catalyst '-Debug';
 
-use Catalyst qw/
-    -Debug
-    ConfigLoader
-    Static::Simple
-/;
-
-extends 'Catalyst';
+with qw(
+  Catalyst::Plugin::RapidApp::RapidDbic
+  Catalyst::Plugin::RapidApp::AuthCore
+  Catalyst::Plugin::RapidApp::NavCore
+);
 
 our $VERSION = '0.01';
-
-# Configure the application.
-#
-# Note that settings in ra_infosite.conf (or other external
-# configuration file that you set up manually) take precedence
-# over this when using ConfigLoader. Thus configuration
-# details given here can function as a default configuration,
-# with an external configuration file acting as an override for
-# local deployment.
+our $TITLE = "RA::InfoSite v" . $VERSION;
 
 __PACKAGE__->config(
-    name => 'RA::InfoSite',
-    # Disable deprecated behavior needed by old applications
-    disable_component_resolution_regex_fallback => 1,
+  name => 'RA::InfoSite',
+    
+  'Plugin::RapidApp::RapidDbic' => {
+    title => $TITLE,
+    nav_title => 'www.rapidapp.info',
+    dashboard_url => '/tple/dashboard.tt',
+    template_navtree_regex => '.',
+    dbic_models => [
+      'RapidApp::CoreSchema'
+    ],
+  },
+  
+  # Simple, wide-open editing of any template:
+  'Controller::RapidApp::Template' => {
+    access_params => {
+      writable => 1,
+      creatable => 1,
+      deletable => 1,
+    }
+  },
+  
 );
 
 # Start the application
 __PACKAGE__->setup();
-
-
-=head1 NAME
-
-RA::InfoSite - Catalyst based application
-
-=head1 SYNOPSIS
-
-    script/ra_infosite_server.pl
-
-=head1 DESCRIPTION
-
-[enter your description here]
-
-=head1 SEE ALSO
-
-L<RA::InfoSite::Controller::Root>, L<Catalyst>
-
-=head1 AUTHOR
-
-root
-
-=head1 LICENSE
-
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=cut
 
 1;
