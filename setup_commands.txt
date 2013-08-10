@@ -1,0 +1,4 @@
+catalyst.pl RA::InfoSite
+cd RA-InfoSite/
+rm -rf root/static/
+rm -rf lib/RA/InfoSite/Controller/Root.pm
