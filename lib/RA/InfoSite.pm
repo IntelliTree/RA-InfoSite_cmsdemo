@@ -22,7 +22,7 @@ __PACKAGE__->config(
   'Plugin::RapidApp::RapidDbic' => {
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
-    dashboard_url => '/tple/dashboard.tt',
+    dashboard_url => '/tple/dashboard.md',
     template_navtree_regex => '.',
     dbic_models => [
       'RapidApp::CoreSchema'
@@ -35,6 +35,7 @@ __PACKAGE__->config(
       writable => 1,
       creatable => 1,
       deletable => 1,
+      external_tpl_regex => '^public',
     }
   },
   

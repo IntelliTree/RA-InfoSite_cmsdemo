@@ -1,0 +1,70 @@
+[% SET sections = [
+  'About',
+  'Download',
+  'Documentation',
+  'Demos',
+  'Support',
+  'Contact',
+] %]
+
+[% DEFAULT 
+  title = 'Bootstrap JustNav Example' 
+  custom_css_href = "/assets/local/misc/static/bootstrap-examples/justified-nav/justified-nav.css"
+%]
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>[% title %]</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/assets/local/misc/static/bootstrap-examples/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="[% custom_css_href %]" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container">
+
+
+
+[%# SET active_section = 'Home' %]
+
+<div class="masthead">
+  <!--  <h3 class="text-muted">RapidApp</h3> -->
+
+<a href="Home.html">
+  <img 
+    src="/assets/rapidapp/misc/static/images/rapidapp_logo_small.png" 
+    style="padding-bottom:10px;"
+  >
+</a>
+
+  <ul class="nav navbar-nav nav-justified">
+    [% FOREACH section IN sections %]
+      [% IF section == active_section %]
+        <li class="active"><a href="[% section %].html">[% section %]</a></li>
+      [% ELSE %]
+        <li><a href="[% section %].html">[% section %]</a></li>
+      [% END %]
+    [% END %]
+  </ul>
+</div>
+
+[% content %]
+
+<!-- Site footer -->
+<div class="footer">
+  <p>&copy; 2013 <a target="_blank" href="http://www.intellitree.com">IntelliTree Solutions</a></p>
+</div>
+
+    </div> <!-- /container -->
+  </body>
+</html>

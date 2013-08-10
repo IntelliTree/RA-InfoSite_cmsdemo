@@ -1,0 +1,13 @@
+<h2>Install it</h2>
+
+<p>
+RapidApp is a Perl module and can be installed from CPAN with a single command:
+</p>
+
+<code>cpanm RapidApp</code>
+
+<p></p>
+
+<p>
+<a class="btn btn-default" href="Download.html">More Info »</a>
+</p>

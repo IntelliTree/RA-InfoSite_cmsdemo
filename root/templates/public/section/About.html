@@ -1,0 +1,20 @@
+[% WRAPPER public/wrapper.html 
+  active_section = 'About'
+  title = 'About RapidApp'
+%]
+
+
+<div class="body-content">
+
+<div style="padding:30px;"></div>
+
+[% INCLUDE rapidapp/pages/about_rapidapp %]
+
+
+</div><!-- /.body-content -->
+
+<div class="body-content">
+  [% INCLUDE public/row_cols.html %]
+</div><!-- /.body-content -->
+
+[% END %]
