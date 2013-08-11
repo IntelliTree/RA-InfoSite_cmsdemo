@@ -8,7 +8,7 @@
 ] %]
 
 [% DEFAULT 
-  title = 'Bootstrap JustNav Example' 
+  title = 'www.rapidapp.info' 
   custom_css_href = "/assets/local/misc/static/bootstrap-examples/justified-nav/justified-nav.css"
 %]
 
@@ -38,14 +38,19 @@
 [%# SET active_section = 'Home' %]
 
 <div class="masthead">
-  <!--  <h3 class="text-muted">RapidApp</h3> -->
 
+<div style="float:right;">
+[% INCLUDE rapidapp/public/log_in_out_control.tt %]
+</div>
+
+<div>
 <a href="Home.html">
   <img 
     src="/assets/rapidapp/misc/static/images/rapidapp_logo_small.png" 
     style="padding-bottom:10px;"
   >
 </a>
+</div>
 
   <ul class="nav navbar-nav nav-justified">
     [% FOREACH section IN sections %]
