@@ -22,11 +22,15 @@ __PACKAGE__->config(
   'Plugin::RapidApp::RapidDbic' => {
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
-    dashboard_url => '/tple/dashboard.md',
+    dashboard_url => '/tple/public/section/Home.html',
     template_navtree_regex => '.',
     dbic_models => [
       'RapidApp::CoreSchema'
     ],
+  },
+  
+  'Plugin::RapidApp::AuthCore' => {
+    login_logo_url => '/assets/rapidapp/misc/static/images/rapidapp_catalyst_logo.png'
   },
   
   # Simple, wide-open editing of any template:
