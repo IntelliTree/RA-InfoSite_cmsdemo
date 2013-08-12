@@ -32,6 +32,28 @@ __PACKAGE__->config(
     dbic_models => [
       'RapidApp::CoreSchema'
     ],
+    configs => {
+      'RapidApp::CoreSchema' => {
+        grid_params => {
+          '*defaults' => {
+            updatable_colspec => ['*'],
+            creatable_colspec => ['*'],
+            destroyable_relspec => ['*'],
+            #cache_total_count => 0,
+            #plugins => ['grid-edit-advanced-config']
+          },
+          Role => {
+            no_page => 1,
+            persist_immediately => {
+              create => \0,
+              update => \0,
+              destroy	=> \0
+            },
+            extra_extconfig => { use_add_form => \0 }
+          }
+        }
+      },
+    }
   },
   
   'Plugin::RapidApp::AuthCore' => {
