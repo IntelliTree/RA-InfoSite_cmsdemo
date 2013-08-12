@@ -16,25 +16,28 @@ with qw(
 our $VERSION = '0.01';
 our $TITLE = "RA::InfoSite v" . $VERSION;
 
-my $home_page = '/tple/public/section/Home.html';
-
 __PACKAGE__->config(
   name => 'RA::InfoSite',
+  
+  'Model::RapidApp' => {
+    root_template_prefix => 'public/section/',
+    root_template => 'public/section/Home.html'
+  },
+  
     
   'Plugin::RapidApp::RapidDbic' => {
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
-    dashboard_url => $home_page,
+    dashboard_url => '/',
     template_navtree_regex => '.',
     dbic_models => [
       'RapidApp::CoreSchema'
     ],
+    
   },
   
   'Plugin::RapidApp::AuthCore' => {
     login_logo_url => '/assets/rapidapp/misc/static/images/rapidapp_catalyst_logo.png',
-    public_template_prefix => 'public/section/',
-    public_root_template => 'public/section/Home.html'
   },
   
   # Simple, wide-open editing of any template:
