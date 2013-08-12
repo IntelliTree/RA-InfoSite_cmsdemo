@@ -3,9 +3,9 @@ use Moose;
 use namespace::autoclean;
 
 use Catalyst::Runtime 5.80;
-use RapidApp 0.99014;
+use RapidApp 0.99015;
 
-use Catalyst '-Debug';
+use Catalyst;
 
 with qw(
   Catalyst::Plugin::RapidApp::RapidDbic
@@ -24,7 +24,6 @@ __PACKAGE__->config(
     root_template => 'public/section/Home.html'
   },
   
-    
   'Plugin::RapidApp::RapidDbic' => {
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
@@ -33,7 +32,6 @@ __PACKAGE__->config(
     dbic_models => [
       'RapidApp::CoreSchema'
     ],
-    
   },
   
   'Plugin::RapidApp::AuthCore' => {
