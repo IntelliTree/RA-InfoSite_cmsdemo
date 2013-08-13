@@ -21,7 +21,7 @@ __PACKAGE__->config(
   
   'Model::RapidApp' => {
     root_template_prefix => 'public/section/',
-    root_template => 'public/section/Home.html'
+    root_template => 'public/section/home'
   },
   
   'Plugin::RapidApp::RapidDbic' => {
@@ -62,6 +62,7 @@ __PACKAGE__->config(
   
   # Simple, wide-open editing of any template:
   'Controller::RapidApp::Template' => {
+    default_template_extension => 'html',
     access_params => {
       writable => 1,
       creatable => 1,

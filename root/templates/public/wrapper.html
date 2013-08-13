@@ -1,17 +1,20 @@
-[% SET sections = [
-  'About',
-  'Download',
-  'Documentation',
-  'Demos',
-  'Support',
-  'Contact',
-] %]
-
+[% SET 
+  sections = [
+    'about',
+    'download',
+    'documentation',
+    'demos',
+    'support',
+    'contact',
+  ]
+  bootstrap_path = "/assets/local/misc/static/bootstrap-examples"
+  bootstrap_css = "$bootstrap_path/bootstrap/css/bootstrap.css"
+  custom_css = "$bootstrap_path/justified-nav/justified-nav.css"
+  home_logo = '/assets/rapidapp/misc/static/images/rapidapp_logo_small.png'
+-%]
 [% DEFAULT 
-  title = 'www.rapidapp.info' 
-  custom_css_href = "/assets/local/misc/static/bootstrap-examples/justified-nav/justified-nav.css"
-%]
-
+  title = 'www.rapidapp.info'
+-%]
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -19,15 +22,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
+    
+    <link href="[% bootstrap_css %]" rel="stylesheet">
+    <link href="[% custom_css %]" rel="stylesheet">
 
     <title>[% title %]</title>
 
-    <!-- Bootstrap core CSS -->
-    <link href="/assets/local/misc/static/bootstrap-examples/bootstrap/css/bootstrap.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="[% custom_css_href %]" rel="stylesheet">
-    
     <!-- enable root hashnav redirects -->
     <script 
       type="text/javascript" 
@@ -37,51 +37,49 @@
   </head>
 
   <body>
-
     <div class="container">
+      <div class="masthead">
+        <div style="float:right;">
+          [% INCLUDE 
+            rapidapp/public/log_in_out_control.tt 
+            convert_hashpath=1 
+          %]
+        </div>
+        <div>
+          <a href="/">
+            <img src="[% home_logo %]" style="padding-bottom:10px;">
+          </a>
+        </div>
+
+        <ul class="nav navbar-nav nav-justified">
+        [%- FOREACH section IN sections %]
+          [%- IF section == active_section %]
+           <li class="active">
+          [%- ELSE %]
+           <li>
+          [%- END %]
+             <a href="[% section %]">[% section.ucfirst %]</a>
+           </li>
+        [%- END %]
+        </ul>
+      </div>
 
 
-
-[%# SET active_section = 'Home' %]
-
-<div class="masthead">
-
-<div style="float:right;">
-[% INCLUDE rapidapp/public/log_in_out_control.tt convert_hashpath=1 %]
-</div>
-
-<div>
-<a href="/">
-  <img 
-    src="/assets/rapidapp/misc/static/images/rapidapp_logo_small.png" 
-    style="padding-bottom:10px;"
-  >
-</a>
-</div>
-
-  <ul class="nav navbar-nav nav-justified">
-    [% FOREACH section IN sections %]
-      [% IF section == active_section %]
-        <li class="active"><a href="[% section %].html">[% section %]</a></li>
-      [% ELSE %]
-        <li><a href="[% section %].html">[% section %]</a></li>
-      [% END %]
-    [% END %]
-  </ul>
-</div>
-
+<!-- BEGIN SECTION CONTENT -->
 [% content %]
-
-<hr>
-
-[% INCLUDE public/under_construction.tt %]
+<!-- END SECTION CONTENT -->
 
 
-<!-- Site footer -->
-<div class="footer">
-  <p>&copy; 2013 <a target="_blank" href="http://www.intellitree.com">IntelliTree Solutions</a></p>
-</div>
+      <hr>
+      
+      [% INCLUDE public/under_construction.tt %]
 
+      <!-- Site footer -->
+      <div class="footer">
+        <p>&copy; 2013 <a target="_blank" href="http://www.intellitree.com">
+          IntelliTree Solutions
+        </a></p>
+      </div>
     </div> <!-- /container -->
   </body>
 </html>
