@@ -1,12 +1,13 @@
+[% SET section = 'contact' -%]
 [% WRAPPER public/wrapper.html 
-  active_section = 'contact'
+  active_section = $section 
   title = 'RapidApp - Contact'
 -%]
 
 <div class="jumbotron"></div>
 
 <div class="body-content">
-  <h2>[% active_section.ucfirst %]</h2>
+  <h2>[% section.ucfirst %]</h2>
   <p>Under construction...</p>
 </div>
 
