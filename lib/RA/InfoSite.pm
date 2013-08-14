@@ -31,9 +31,7 @@ __PACKAGE__->config(
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
     dashboard_url => '/',
-    navtree_disabled => 1,
-    template_navtree_regex => $tpl_regex,
-    template_navtree_expanded => 1,
+    #template_navtree_regex => $tpl_regex,
   },
   
   'Controller::RapidApp::Template' => {
