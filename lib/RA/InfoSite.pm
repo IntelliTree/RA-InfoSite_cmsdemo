@@ -17,33 +17,30 @@ with (
 our $VERSION = '0.01';
 our $TITLE = "RA::InfoSite v" . $VERSION;
 
+my $tpl_regex = '^public\/';
+
 __PACKAGE__->config(
   name => 'RA::InfoSite',
   
   'Model::RapidApp' => {
-    root_template_prefix => 'public/section/',
-    root_template => 'public/section/home'
+    root_template_prefix  => 'public/section/',
+    root_template         => 'public/section/home'
   },
   
   'Plugin::RapidApp::TabGui' => {
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
     dashboard_url => '/',
-    template_navtree_regex => '.',
-  },
-    
-  'Plugin::RapidApp::AuthCore' => {
-    login_logo_url => '/assets/rapidapp/misc/static/images/rapidapp_catalyst_logo.png',
+    template_navtree_regex => $tpl_regex,
   },
   
-  # Simple, wide-open editing of any template:
   'Controller::RapidApp::Template' => {
     default_template_extension => 'html',
     access_params => {
-      writable => 1,
-      creatable => 1,
-      deletable => 1,
-      external_tpl_regex => '^public',
+      writable_regex      => $tpl_regex,
+      creatable_regex     => $tpl_regex,
+      deletable_regex     => $tpl_regex,
+      external_tpl_regex  => '^public\/',
     }
   },
  
