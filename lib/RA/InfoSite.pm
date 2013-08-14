@@ -17,7 +17,7 @@ with (
 our $VERSION = '0.01';
 our $TITLE = "RA::InfoSite v" . $VERSION;
 
-my $tpl_regex = '^public\/';
+my $tpl_regex = '^public\/section\/';
 
 __PACKAGE__->config(
   name => 'RA::InfoSite',
@@ -31,7 +31,9 @@ __PACKAGE__->config(
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
     dashboard_url => '/',
+    navtree_disabled => 1,
     template_navtree_regex => $tpl_regex,
+    template_navtree_expanded => 1,
   },
   
   'Controller::RapidApp::Template' => {
