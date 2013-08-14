@@ -7,10 +7,11 @@ use RapidApp 0.99015;
 
 use Catalyst;
 
-with qw(
-  Catalyst::Plugin::RapidApp::RapidDbic
-  Catalyst::Plugin::RapidApp::AuthCore
-  Catalyst::Plugin::RapidApp::NavCore
+with (
+  'Catalyst::Plugin::RapidApp::TabGui',
+  'Catalyst::Plugin::RapidApp::AuthCore',
+  #'Catalyst::Plugin::RapidApp::NavCore',
+  #'Catalyst::Plugin::RapidApp::CoreSchemaAdmin',
 );
 
 our $VERSION = '0.01';
@@ -24,38 +25,13 @@ __PACKAGE__->config(
     root_template => 'public/section/home'
   },
   
-  'Plugin::RapidApp::RapidDbic' => {
+  'Plugin::RapidApp::TabGui' => {
     title => $TITLE,
     nav_title => 'www.rapidapp.info',
     dashboard_url => '/',
     template_navtree_regex => '.',
-    dbic_models => [
-      'RapidApp::CoreSchema'
-    ],
-    configs => {
-      'RapidApp::CoreSchema' => {
-        grid_params => {
-          '*defaults' => {
-            updatable_colspec => ['*'],
-            creatable_colspec => ['*'],
-            destroyable_relspec => ['*'],
-            #cache_total_count => 0,
-            #plugins => ['grid-edit-advanced-config']
-          },
-          Role => {
-            no_page => 1,
-            persist_immediately => {
-              create => \0,
-              update => \0,
-              destroy	=> \0
-            },
-            extra_extconfig => { use_add_form => \0 }
-          }
-        }
-      },
-    }
   },
-  
+    
   'Plugin::RapidApp::AuthCore' => {
     login_logo_url => '/assets/rapidapp/misc/static/images/rapidapp_catalyst_logo.png',
   },
@@ -70,7 +46,7 @@ __PACKAGE__->config(
       external_tpl_regex => '^public',
     }
   },
-  
+ 
 );
 
 # Start the application
