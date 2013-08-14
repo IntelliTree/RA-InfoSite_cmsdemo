@@ -17,14 +17,14 @@ with (
 our $VERSION = '0.01';
 our $TITLE = "RA::InfoSite v" . $VERSION;
 
-my $tpl_regex = '^public\/section\/';
+my $tpl_regex = '^site\/public\/';
 
 __PACKAGE__->config(
   name => 'RA::InfoSite',
   
   'Model::RapidApp' => {
-    root_template_prefix  => 'public/section/',
-    root_template         => 'public/section/home'
+    root_template_prefix  => 'site/public/page/',
+    root_template         => 'site/public/page/home'
   },
   
   'Plugin::RapidApp::TabGui' => {
@@ -40,7 +40,7 @@ __PACKAGE__->config(
       writable_regex      => $tpl_regex,
       creatable_regex     => $tpl_regex,
       deletable_regex     => $tpl_regex,
-      external_tpl_regex  => '^public\/',
+      external_tpl_regex  => '^site\/',
     }
   },
  
