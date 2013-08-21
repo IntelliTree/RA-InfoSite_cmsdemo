@@ -17,7 +17,7 @@ with (
 our $VERSION = '0.01';
 our $TITLE = "RA::InfoSite v" . $VERSION;
 
-my $tpl_regex = '^site\/public\/';
+my $tpl_regex = '^site\/';
 
 __PACKAGE__->config(
   name => 'RA::InfoSite',

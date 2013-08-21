@@ -2,18 +2,18 @@
 <table>
 <tbody><tr>
 <td style="width:200px;">
-<img src="/assets/local/misc/current/images/construction_sign.png">
+<img src="/assets/local/misc/static/images/construction_sign.png">
 </td>
-<td style="width:450px;">
+<td id="ext-gen261" style="width:450px;">
 <p>
-This site is still under construction, please try back later.
+This site is still under construction, please try back later!!!
 </p>
 
-<p>
-For support, or to learn more about the RapidApp project, please visit the <b>#rapidapp</b> IRC channel on <b>irc.perl.org</b>
+<p id="ext-gen251">
+For support, or to learn more about the RapidApp project, please visit the <b>#rapidapp</b> IRC channel on<font color="FF0000" size="4"> <b>irc.perl.org</b></font>
 </p>
 
-<br>
+<img id="ext-gen530" src="/simplecas/fetch_content/9f56601165e6ac76189134bd8ecfb3e2090cd94f/smiley.png" height="57" width="58">
 
 <p>
 Github repository: <b><a target="_blank" href="https://github.com/vanstyn/RapidApp">github.com/vanstyn/RapidApp</a></b>
