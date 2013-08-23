@@ -1,9 +1,10 @@
 # Repo for the RapidApp CMS demo video
 
-This is the repo associated with the code used in the RapidApp CMS demo video on www.rapidapp.info
+This is the repo associated with the code used in the 'CMS Intro' RapidApp demo video at **[www.rapidapp.info/demos](http://www.rapidapp.info/demos)**. Please watch the video for more information.
 
+Version of RapidApp used for this demo: 0.99017
 
-# Quick Start:
+## Quick Setup
 
 ```bash
 
@@ -20,5 +21,5 @@ script/ra_infosite_server.pl
 
 ### Initial User Account:
 
- * username: admin
- * password: pass
+ * username: **admin**
+ * password: **pass**

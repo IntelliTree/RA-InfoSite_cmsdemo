@@ -3,7 +3,7 @@ use Moose;
 use namespace::autoclean;
 
 use Catalyst::Runtime 5.80;
-use RapidApp 0.99016;
+use RapidApp 0.99017;
 
 use Catalyst;
 
