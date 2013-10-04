@@ -5,28 +5,43 @@ use warnings;
 use Try::Tiny;
 use Socket;
 use POSIX ":sys_wait_h";
+use lib 't/lib';
+use lib 'lib';
+use Selenium::TestUtil;
+my $util= 'Selenium::TestUtil';
 
-die "No SELENIUM_HOST specified\n"
-	unless defined $ENV{SELENIUM_HOST};
+sub die_usage {
+	my $msg= shift;
+	die "$msg\n".<<'END';
+Usage: [env_vars] script/prove-with-testserver [prove_args]
+  where prove_args are passed directly to 'prove', and env_vars are:
+  SELENIUM_HOST=$HOSTNAME[:$PORT]      (required)
+  SELENIUM_PORT=$PORT                  (optional, default 4444)
+  SELENIUM_BROWSER=$BROWSER_NAME       (argument to Selenium Driver)
+  TEST_APP_HOST=$ADDRESS_OF_THIS_HOST  (if autodetection fails)
+  TEST_APP_PORT=$LOCAL_PORT            (to used a specific port locally)
+  TEST_APP_STARTUP_TIMEOUT=$SECONDS    (default 20)
 
-# SELENIUM_HOST can contain a port, but we want to simplify the
-# rest of the scripts, so split that into a separate var
-($ENV{SELENIUM_HOST} =~ /^([^:]+)(:(\d+))?$/)
-	or die "Invalid SELENIUM_HOST setting: '$ENV{SELENIUM_HOST}'";
-if ($3) {
-	$ENV{SELENIUM_PORT}= $3;
-	$ENV{SELENIUM_HOST}= $1;
+END
 }
 
-$ENV{TEST_APP_HOST} ||= guess_network_address(from => $ENV{SELENIUM_HOST})
+die_usage "No SELENIUM_HOST specified"
+	unless defined $util->selenium_host;
+
+$util->test_app_host(
+	$util->find_address_facing_selenium
 	or die "Can't guess value for TEST_APP_HOST. Please set manually "
-		."to the IP addr SELENIUM_HOST should use to connect back to us.\n";
-$ENV{TEST_APP_PORT} ||= find_free_port()
-	or die "Can't find a free port to run the app on.\n";
-$ENV{TEST_APP_STARTUP_TIMEOUT} ||= 10;
+		."to the IP addr SELENIUM_HOST should use to connect back to us.\n"
+);
+$util->test_app_port(
+	$util->find_port_facing_selenium
+	or die "Can't find a free port to run the app on.\n"
+);
+
+$ENV{TEST_APP_STARTUP_TIMEOUT} ||= 20;
 
 # Start an instance of the webapp
-warn "Starting webapp on port $ENV{TEST_APP_PORT}\n";
+warn "Starting webapp on ".$util->test_app_host." port ".$util->test_app_port."\n";
 
 defined (my $server_pid= fork()) or die "fork(): $!";
 
@@ -58,7 +73,7 @@ sub exec_server_or_exit {
 	use FindBin;
 	my $script= "$FindBin::Bin/../script/ra_infosite_server.pl";
 	close STDIN;
-	exec $script, '-p', $ENV{TEST_APP_PORT}
+	exec $script, '-p', $util->test_app_port
 		or warn "exec($script): $!\n";
 	# exec failed, but we still want exec() semantics, if possible.
 	# i.e. no destructors of objects that might use handles shared with the parent.
@@ -66,21 +81,16 @@ sub exec_server_or_exit {
 	exit(1);
 }
 
-sub guess_network_address {
-	'172.20.0.41'
-}
-
-sub find_free_port {
-	4001;
-}
-
 sub wait_for_server_ready {
+	my $quit= 0;
+	$SIG{TERM}= sub { $quit= 1; };
+	
 	socket(my $socket, Socket::PF_INET, Socket::SOCK_STREAM, 0)
 		or die "socket(): $!";
 	my $deadline= time + $ENV{TEST_APP_STARTUP_TIMEOUT};
 	my $result= '';
-	while (1) {
-		if (connect($socket, pack_sockaddr_in($ENV{TEST_APP_PORT}, inet_aton('localhost')))) {
+	while (!$quit) {
+		if (connect($socket, pack_sockaddr_in($util->test_app_port, inet_aton('localhost')))) {
 			$result= 1;
 			last;
 		}
