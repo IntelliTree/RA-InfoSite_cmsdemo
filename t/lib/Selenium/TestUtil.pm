@@ -4,6 +4,7 @@ use warnings;
 use Try::Tiny;
 use Carp;
 use Socket;
+use Fcntl;
 
 =head1 NAME
 
@@ -55,7 +56,7 @@ selenium server should run tests against.
 
 sub selenium_host { @_ > 1? ($ENV{SELENIUM_HOST}= $_[1]) : $ENV{SELENIUM_HOST} }
 
-sub selenium_port { @_ > 1? ($ENV{SELENIUM_PORT}= $_[1]) : ($ENV{SELENIUM_PORT}||4444) }
+sub selenium_port { (@_ > 1? ($ENV{SELENIUM_PORT}= $_[1]) : $ENV{SELENIUM_PORT})||4444 }
 
 sub selenium_browser { @_ > 1? ($ENV{SELENIUM_BROWSER}= $_[1]) : $ENV{SELENIUM_BROWSER} }
 
@@ -82,12 +83,12 @@ sub import {
 	
 	# Can't run these tests unless we have the selenium webdriver module
 	my $have_selenium= try { require Selenium::Remote::Driver; 1; };
-	Test::More::plan skip_all => "Can't run selenium tests without Selenium::Remote::Driver"
+	Test::More::plan(skip_all => "Can't run selenium tests without Selenium::Remote::Driver")
 		unless $have_selenium;
 
 	# Don't want to run them unless user specifies the name of a host running
 	# a selenium server
-	Test::More::plan skip_all => "No SELENIUM_HOST specified; try script/prove-with-testserver"
+	Test::More::plan(skip_all => "No SELENIUM_HOST specified; try script/prove-with-testserver")
 		unless defined $class->selenium_host;
 
 	# Scalar-refs can be passed to imort as a sugary way to grab these values.
@@ -147,20 +148,20 @@ sub find_address_facing_selenium {
 	my $class= shift;
 	socket(my $s, Socket::PF_INET, Socket::SOCK_STREAM, 0)
 		or return undef;
-	connect($s, Socket::pack_sockaddr_in($class->selenium_port, Socket::inet_aton($class->selenium_host)))
+	# Set non-blocking mode
+	fcntl($s, Fcntl::F_SETFL, fcntl($s, Fcntl::F_GETFL, 0) | Fcntl::O_NONBLOCK);
+	# Start a connection, but don't bother waiting for it.
+	connect($s, Socket::pack_sockaddr_in(1, Socket::inet_aton($class->selenium_host)));
+	# See what address it bound to
+	my ($port, $ip)= Socket::unpack_sockaddr_in(getsockname($s))
 		or return undef;
-	my $addr= getsockname($s)
-		or return undef;
-	my ($port, $ip)= Socket::unpack_sockaddr_in($addr)
-		or return undef;
-	return inet_ntoa($ip);
+	return $ip eq "\0\0\0\0"? undef : inet_ntoa($ip);
 }
 
 =head2 find_port_facing_selenium
 
 Returns a port number on which the selenium server can likely connect back to
-us, or undef if it can't find one.  The port is chosen randomly, up to 10
-attempts before giving up.
+us, or undef if it can't find one.
 
 test_app_host should be set before calling this.
 
@@ -170,12 +171,14 @@ sub find_port_facing_selenium {
 	my $class= shift;
 	socket(my $s, Socket::PF_INET, Socket::SOCK_STREAM, 0)
 		or return undef;
-	for (my $i=0; $i < 10; $i++) {
-		my $port= int(rand 60000) + 1024;
-		# will auto-close $s, and guarantee this port is free (at least briefly...)
-		return $port
-			if bind($s, Socket::pack_sockaddr_in($port, inet_aton($ipaddr)));
-	}
+	# find out whether we can bind to TEST_APP_HOST at all.
+	return (Socket::unpack_sockaddr_in(getsockname($s)))[0]
+		if $class->test_app_host
+			and bind($s, Socket::pack_sockaddr_in(0, inet_aton($class->test_app_host)));
+	# Fall back to binding to wildcard
+	return (Socket::unpack_sockaddr_in(getsockname($s)))[0]
+		if bind($s, Socket::pack_sockaddr_in(0, Socket::INADDR_ANY));
+	# else we have no idea
 	return undef;
 }
 
