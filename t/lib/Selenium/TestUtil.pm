@@ -104,7 +104,7 @@ another 'use' line to get that symbol.
 sub import {
 	my ($class, @symbols)= grep { $_ ne '&&skipcheck' } @_;
 	
-	# If we removed anything, it means we found ":skipcheck" in the list
+	# If we removed anything, it means we found "&&skipcheck" in the list
 	$class->skipcheck()
 		if @symbols+1 < @_;
 	
@@ -147,15 +147,14 @@ for you if the environment isn't properly set up for running Selenium tests.
 =cut
 
 sub skipcheck {
-	my $class= shift;
 	require Test::More;
 	# Selenium webdriver module is required
 	Test::More::plan(skip_all => "Can't run selenium tests without Selenium::Remote::Driver")
-		unless $class->have_selenium;
+		unless __PACKAGE__->have_selenium;
 	# Don't want to run them unless user specifies the name of a host running
 	# a selenium server
 	Test::More::plan(skip_all => "No SELENIUM_HOST specified; try script/prove-with-testserver")
-		unless defined $class->selenium_host;
+		unless defined __PACKAGE__->selenium_host;
 }
 
 =head2 driver
@@ -170,9 +169,9 @@ sub driver {
 	$driver ||= do {
 		require Selenium::Remote::Driver;
 		Selenium::Remote::Driver->new(
-			remote_server_addr => $ENV{SELENIUM_HOST},
-			port => $ENV{SELENIUM_PORT} || 4444,
-			browser_name => $ENV{SELENIUM_BROWSER} || 'firefox',
+			remote_server_addr => __PACKAGE__->selenium_host,
+			port               => __PACKAGE__->selenium_port,
+			browser_name       => __PACKAGE__->selenium_browser || 'firefox',
 		);
 	};
 }
@@ -185,8 +184,7 @@ reach our locally-running test_app.
 =cut
 
 sub app_url {
-	my $class= shift;
-	$class->test_app_host.':'.$class->test_app_port;
+	__PACKAGE__->test_app_host.':'.__PACKAGE__->test_app_port;
 }
 
 =head2 find_address_facing_selenium
@@ -201,13 +199,12 @@ attempt to connect to the that server.
 =cut
 
 sub find_address_facing_selenium {
-	my $class= shift;
 	socket(my $s, Socket::PF_INET, Socket::SOCK_STREAM, 0)
 		or return undef;
 	# Set non-blocking mode
 	fcntl($s, Fcntl::F_SETFL, fcntl($s, Fcntl::F_GETFL, 0) | Fcntl::O_NONBLOCK);
 	# Start a connection, but don't bother waiting for it.
-	connect($s, Socket::pack_sockaddr_in(1, Socket::inet_aton($class->selenium_host)));
+	connect($s, Socket::pack_sockaddr_in(1, Socket::inet_aton(__PACKAGE__->selenium_host)));
 	# See what address it bound to
 	my ($port, $ip)= Socket::unpack_sockaddr_in(getsockname($s))
 		or return undef;
@@ -224,13 +221,12 @@ test_app_host should be set before calling this.
 =cut
 
 sub find_port_facing_selenium {
-	my $class= shift;
 	socket(my $s, Socket::PF_INET, Socket::SOCK_STREAM, 0)
 		or return undef;
 	# find out whether we can bind to TEST_APP_HOST at all.
 	return (Socket::unpack_sockaddr_in(getsockname($s)))[0]
-		if $class->test_app_host
-			and bind($s, Socket::pack_sockaddr_in(0, inet_aton($class->test_app_host)));
+		if __PACKAGE__->test_app_host
+			and bind($s, Socket::pack_sockaddr_in(0, inet_aton(__PACKAGE__->test_app_host)));
 	# Fall back to binding to wildcard
 	return (Socket::unpack_sockaddr_in(getsockname($s)))[0]
 		if bind($s, Socket::pack_sockaddr_in(0, Socket::INADDR_ANY));
