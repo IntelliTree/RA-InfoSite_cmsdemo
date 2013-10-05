@@ -83,10 +83,10 @@ sub test_app_port { @_ > 1? ($ENV{TEST_APP_PORT}= $_[1]) : $ENV{TEST_APP_PORT} }
 When you use Selenium::TestUtil, you can quickly get set up for a unit test with some
 special import directives.
 
-  use Selenium::TestUtil qw( :skipcheck driver $app KEYS );
+  use Selenium::TestUtil qw( &&skipcheck driver $app KEYS );
   driver->get("http://$app/");
 
-:skipcheck is a dummy group which immediately *runs* the TestUtil->skipcheck function.
+&&skipcheck immediately *runs* the TestUtil->skipcheck function.
 See L</skipcheck> for details.
 
 driver is the method you will use most, and returns a global instance of
@@ -102,7 +102,7 @@ another 'use' line to get that symbol.
 =cut
 
 sub import {
-	my ($class, @symbols)= grep { $_ ne ':skipcheck' } @_;
+	my ($class, @symbols)= grep { $_ ne '&&skipcheck' } @_;
 	
 	# If we removed anything, it means we found ":skipcheck" in the list
 	$class->skipcheck()
