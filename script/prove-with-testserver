@@ -7,20 +7,22 @@ use Socket;
 use POSIX ":sys_wait_h";
 use lib 't/lib';
 use lib 'lib';
-use Selenium::TestUtil;
+require Selenium::TestUtil;
 my $util= 'Selenium::TestUtil';
 
 sub die_usage {
 	my $msg= shift;
 	die "$msg\n".<<'END';
-Usage: [env_vars] script/prove-with-testserver [prove_args]
+Usage:
+    [env_vars] script/prove-with-testserver [prove_args]
+
   where prove_args are passed directly to 'prove', and env_vars are:
-  SELENIUM_HOST=$HOSTNAME[:$PORT]      (required)
-  SELENIUM_PORT=$PORT                  (optional, default 4444)
-  SELENIUM_BROWSER=$BROWSER_NAME       (argument to Selenium Driver)
-  TEST_APP_HOST=$ADDRESS_OF_THIS_HOST  (if autodetection fails)
-  TEST_APP_PORT=$LOCAL_PORT            (to used a specific port locally)
-  TEST_APP_STARTUP_TIMEOUT=$SECONDS    (default 20)
+  SELENIUM_HOST=$HOST[:$PORT]       (required)
+  SELENIUM_PORT=$PORT               (optional, default 4444)
+  SELENIUM_BROWSER=$BROWSER_NAME    (optional, default "firefox")
+  TEST_APP_HOST=$LOCAL_ADDRESS      (required if autodetection fails)
+  TEST_APP_PORT=$LOCAL_PORT         (optional, to used a specific port locally)
+  TEST_APP_STARTUP_TIMEOUT=$SECONDS (optional, default 20)
 
 END
 }

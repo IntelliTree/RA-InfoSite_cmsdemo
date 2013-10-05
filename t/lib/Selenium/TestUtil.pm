@@ -5,6 +5,20 @@ use Try::Tiny;
 use Carp;
 use Socket;
 use Fcntl;
+use parent 'Exporter';
+
+our (@EXPORT_OK, %EXPORT_TAGS, @EXPORT_FAIL, $app);
+BEGIN {
+
+# standard exports
+@EXPORT_OK= qw( selenium_host selenium_port selenium_browser
+	test_app_host test_app_port driver app_url find_address_facing_selenium
+	find_port_facing_selenium $app KEYS );
+
+# special processing for these
+@EXPORT_FAIL= qw( KEYS $app );
+
+} # BEGIN
 
 =head1 NAME
 
@@ -66,44 +80,83 @@ sub test_app_port { @_ > 1? ($ENV{TEST_APP_PORT}= $_[1]) : $ENV{TEST_APP_PORT} }
 
 =head1 USE
 
-When you use Selenium::TestUtil, you can quickly import some values into local
-variables in your script.
+When you use Selenium::TestUtil, you can quickly get set up for a unit test with some
+special import directives.
 
-  my ($driver, $app);
-  use Selenium::TestUtil app_url => \$app, driver => \$driver;
-  
-  $driver->get("http://$app/");
+  use Selenium::TestUtil qw( :skipcheck driver $app KEYS );
+  driver->get("http://$app/");
 
+:skipcheck is a dummy group which immediately *runs* the TestUtil->skipcheck function.
+See L</skipcheck> for details.
+
+driver is the method you will use most, and returns a global instance of
+Selenium::Remote::Driver created with the values from the attributes of this package
+(which come from environment variables).
+
+$app is a convenient variable to use instead of 'app_url', because it can be embedded
+in strings more easily than a function call.
+
+KEYS is the symbol exported by Selenium::Remote::WDKeys, and saves you the trouble of
+another 'use' line to get that symbol.
 
 =cut
 
 sub import {
-	my ($class, %args)= @_;
-	require Test::More;
+	my ($class, @symbols)= grep { $_ ne ':skipcheck' } @_;
 	
-	# Can't run these tests unless we have the selenium webdriver module
-	my $have_selenium= try { require Selenium::Remote::Driver; 1; };
-	Test::More::plan(skip_all => "Can't run selenium tests without Selenium::Remote::Driver")
-		unless $have_selenium;
+	# If we removed anything, it means we found ":skipcheck" in the list
+	$class->skipcheck()
+		if @symbols+1 < @_;
+	
+	$class->export_to_level(1, $class, @symbols);
+}
 
+sub export_fail {
+	my ($class, @symbols)= @_;
+	my @unknown;
+	for my $sym (@symbols) {
+		if ($sym eq 'KEYS') {
+			require Selenium::Remote::WDKeys;
+			Selenium::Remote::WDKeys->import('KEYS');
+		} elsif ($sym eq '$app') {
+			$app ||= $class->app_url;
+		} else {
+			push @unknown, $sym;
+		}
+	}
+	return @unknown;
+}
+
+=head1 METHODS
+
+=head2 have_selenium
+
+Simply a boolean to indicate whether Selenium webdriver module is installed.
+
+=cut
+
+sub have_selenium {
+	try { require Selenium::Remote::Driver; 1; }
+}
+
+=head2 skipcheck
+
+Used for the top of unit tests, this function will call "plan skip_all => $reason"
+for you if the environment isn't properly set up for running Selenium tests.
+
+=cut
+
+sub skipcheck {
+	my $class= shift;
+	require Test::More;
+	# Selenium webdriver module is required
+	Test::More::plan(skip_all => "Can't run selenium tests without Selenium::Remote::Driver")
+		unless $class->have_selenium;
 	# Don't want to run them unless user specifies the name of a host running
 	# a selenium server
 	Test::More::plan(skip_all => "No SELENIUM_HOST specified; try script/prove-with-testserver")
 		unless defined $class->selenium_host;
-
-	# Scalar-refs can be passed to imort as a sugary way to grab these values.
-	for (qw: driver app_url :) {
-		if (defined $args{$_}) {
-			my $ref= delete $args{$_};
-			ref $ref eq 'SCALAR' or croak "Required scalar ref for '$_'";
-			$$ref= $class->$_;
-		}
-	}
-	
-	croak "Unknown argument $_" for keys %args;
 }
-
-=head1 METHODS
 
 =head2 driver
 
@@ -114,11 +167,14 @@ Selenium server
 
 my $driver;
 sub driver {
-	$driver ||= Selenium::Remote::Driver->new(
-		remote_server_addr => $ENV{SELENIUM_HOST},
-		port => $ENV{SELENIUM_PORT} || 4444,
-		browser_name => $ENV{SELENIUM_BROWSER} || 'firefox',
-	);
+	$driver ||= do {
+		require Selenium::Remote::Driver;
+		Selenium::Remote::Driver->new(
+			remote_server_addr => $ENV{SELENIUM_HOST},
+			port => $ENV{SELENIUM_PORT} || 4444,
+			browser_name => $ENV{SELENIUM_BROWSER} || 'firefox',
+		);
+	};
 }
 
 =head2 app_url
