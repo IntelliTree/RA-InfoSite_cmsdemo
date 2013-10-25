@@ -13,7 +13,8 @@ BEGIN {
 # standard exports
 @EXPORT_OK= qw( selenium_host selenium_port selenium_browser
 	test_app_host test_app_port driver app_url find_address_facing_selenium
-	find_port_facing_selenium $app KEYS );
+	find_port_facing_selenium is_https isnt_https
+	$app KEYS );
 
 # special processing for these
 @EXPORT_FAIL= qw( KEYS $app );
@@ -243,5 +244,53 @@ sub find_port_facing_selenium {
 	return undef;
 }
 
+=head2 is_https
+
+  is_https( $driver, $comment ); # emits a Test::More pass or fail
+  is_https( $comment );
+  is_https();
+  
+  # example...
+  is_https( driver, 'current page was delivered via https' );
+  is_https;
+
+This is a handy "is" method for testcases.  Pass it the driver, and it will run
+javascript on the current page to determine whether the page is HTTPS or not.
+
+$driver defaults to the driver of Selenium::TestUtil
+
+$comment defaults to 'secure connection'.  Comment must be a plain scalar if
+you omit $driver.
+
+=cut
+
+sub is_https {
+	my ($driver, $comment)= (@_ == 1 && defined $_[0] && !ref $_[0])? (undef, $_[0]) : @_;
+	$driver  //= driver();
+	$comment //= 'secure connection';
+	Test::More::is( $driver->execute_script( 'return window.location.protocol;' ), 'https:', $comment );
+}
+
+=head2 isnt_https
+
+  isnt_https( $driver, $comment ); # emits a Test::More pass or fail
+  isnt_https( $comment );
+  isnt_https();
+
+Inverse of is_https
+
+$driver defaults to the driver of Selenium::TestUtil
+
+$comment defaults to 'secure connection'.  Comment must be a plain scalar if
+you omit $driver.
+
+=cut
+
+sub isnt_https {
+	my ($driver, $comment)= (@_ == 1 && defined $_[0] && !ref $_[0])? (undef, $_[0]) : @_;
+	$driver  //= driver();
+	$comment //= 'insecure connection';
+	Test::More::isnt( $driver->execute_script( 'return window.location.protocol;' ), 'https:', $comment );
+}
 
 1;
