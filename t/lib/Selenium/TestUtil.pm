@@ -111,14 +111,18 @@ sub import {
 	$class->export_to_level(1, $class, @symbols);
 }
 
+# Handle special cases, where we want to run some code before Exporter does its thing.
+# See Exporter for the API we're using here.
 sub export_fail {
 	my ($class, @symbols)= @_;
 	my @unknown;
 	for my $sym (@symbols) {
 		if ($sym eq 'KEYS') {
+			# Import KEYS to this package, which Exporter then exports to the caller.
 			require Selenium::Remote::WDKeys;
 			Selenium::Remote::WDKeys->import('KEYS');
 		} elsif ($sym eq '$app') {
+			# Initialize $app before letting it get exported.
 			$app ||= $class->app_url;
 		} else {
 			push @unknown, $sym;
@@ -175,6 +179,10 @@ sub driver {
 		);
 	};
 }
+END {
+	$driver->quit
+		if $driver && !$ENV{SELENIUM_NOCLOSE};
+}
 
 =head2 app_url
 
@@ -202,7 +210,8 @@ sub find_address_facing_selenium {
 	socket(my $s, Socket::PF_INET, Socket::SOCK_STREAM, 0)
 		or return undef;
 	# Set non-blocking mode
-	fcntl($s, Fcntl::F_SETFL, fcntl($s, Fcntl::F_GETFL, 0) | Fcntl::O_NONBLOCK);
+	fcntl($s, Fcntl::F_SETFL, fcntl($s, Fcntl::F_GETFL, 0) | Fcntl::O_NONBLOCK)
+		or return undef;
 	# Start a connection, but don't bother waiting for it.
 	connect($s, Socket::pack_sockaddr_in(1, Socket::inet_aton(__PACKAGE__->selenium_host)));
 	# See what address it bound to
